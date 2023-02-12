@@ -702,7 +702,6 @@ def getData(args):
         
         return(data)
 
-
 def getFreqdata():
     import urllib.request
     log.info(f'fetch data from {FREQ_URL}')
@@ -742,7 +741,6 @@ def getFreqdata():
         i = i + 1
 
     return (bands)
-    
 
 if __name__ == "__main__":
 
