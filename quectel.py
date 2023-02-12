@@ -622,6 +622,8 @@ def getData(args):
         
             data[command] = lines
         
+        modem.close()
+        
         return(data)
 
 

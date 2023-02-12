@@ -1,0 +1,13 @@
+[Unit]
+Description=Unifi LET Monitor
+After=network.target
+
+[Service]
+User=root
+Restart=always
+ExecStart=/usr/local/mydy/src/quectel.py -v -f -w
+Type=simple
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target

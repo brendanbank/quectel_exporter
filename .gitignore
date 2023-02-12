@@ -149,3 +149,4 @@ build/
 girareporter.sock
 gauge_all*db
 mysql
+Pipfile.lock
