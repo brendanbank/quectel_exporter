@@ -1,0 +1,68 @@
+{
+    "pin": [
+        "+CPIN: READY"
+    ],
+    "QENG": [
+        "+QENG: \"servingcell\",\"NOCONN\",\"LTE\",\"FDD\",222,88,586A500,18,1650,3,5,5,8119,-112,-15,-75,7,-"
+    ],
+    "QSPN": [
+        "+QSPN: \"WINDTRE\",\"WINDTRE\",\"\",0,\"22288\""
+    ],
+    "CREG": [
+        "+CREG: 2,1,\"8119\",\"586A500\",7"
+    ],
+    "QNWINFO": [
+        "+QNWINFO: \"FDD LTE\",\"22288\",\"LTE BAND 3\",1650"
+    ],
+    "network_time": [
+        "+QLTS: \"2023/02/12,13:08:12+04,0\""
+    ],
+    "COPS": [
+        "+COPS: 0,0,\"WINDTRE\",7"
+    ],
+    "QSIMSTAT": [
+        "+QSIMSTAT: 0,1"
+    ],
+    "qccid": [
+        "+QCCID: 8939880825065801124F"
+    ],
+    "imsi": [
+        "222881255698828"
+    ],
+    "firmware": [
+        "EG25GGBR07A08M2G"
+    ],
+    "model": [
+        "EG25"
+    ],
+    "manufacturer": [
+        "Quectel"
+    ],
+    "imei_sn": [
+        "+CGSN:MPA20K6040025201P"
+    ],
+    "imei": [
+        "+CGSN: \"867698045355909\""
+    ],
+    "CGDCONT": [
+        "+CGDCONT: 1,\"IP\",\"internet.it\",\"0.0.0.0\",0,0,0,0",
+        "+CGDCONT: 2,\"IPV4V6\",\"ims\",\"0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0\",0,0,0,0",
+        "+CGDCONT: 3,\"IPV4V6\",\"\",\"0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0\",0,0,0,1"
+    ],
+    "CGACT": [
+        "+CGACT: 1,1",
+        "+CGACT: 2,0",
+        "+CGACT: 3,0"
+    ],
+    "ATI": [
+        "Quectel",
+        "EG25",
+        "Revision: EG25GGBR07A08M2G"
+    ],
+    "QGDCNT": [
+        "+QGDCNT: 18346457,353683715"
+    ],
+    "CIND": [
+        "+CIND: 0,3,1,0,0,0,1,0"
+    ]
+}
