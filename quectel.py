@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+    #!/usr/bin/env python3
 '''
 quectel_exporter -- Exporter for quectel modem 
 
@@ -14,7 +14,6 @@ quectel_exporter is a data exporter for Prometheus
 @deffield    updated: Updated
 '''
 
-
 import sys, os, time
 from os import path
 import argparse
@@ -28,7 +27,7 @@ from prometheus_client import Histogram, CollectorRegistry, start_http_server, G
 FREQ_URL = "https://rahix.github.io/frequency-bands/data/fb.csv"
 
 log = logging.getLogger(path.basename(__file__))
-logging.basicConfig(format='%(name)s.%(funcName)s(%(lineno)s): %(message)s',stream=sys.stderr,level=logging.WARN)
+logging.basicConfig(format='%(name)s.%(funcName)s(%(lineno)s): %(message)s', stream=sys.stderr, level=logging.WARN)
 
 __all__ = []
 __version__ = 0.2
@@ -36,60 +35,102 @@ __date__ = '2023-01-10'
 __updated__ = '2023-01-20'
 
 EXPORTER_PORT = 9013
-MODEMPORT="/dev/ttyUSB2"
-MODEMBAUDRATE=115200
+MODEMPORT = "/dev/ttyUSB2"
+MODEMBAUDRATE = 115200
 FREQDATA = {}
-POLL_INTERVAL=20
+POLL_INTERVAL = 20
 
-ACCESS_TECHNOLOGY = {
-    "0": "GSM",
-    "2": "UTRAN",
-    "3": "GSM W/EGPRS",
-    "4": "UTRAN W/HSDPA",
-    "5": "UTRAN W/HSUPA",
-    "6": "UTRAN W/HSDPA and HSUPA",
-    "7": "E-UTRAN",
-    "100": "CDMA",
-}
+ACCESS_TECHNOLOGY = {"0": "GSM",
+                     "2": "UTRAN",
+                     "3": "GSM W/EGPRS",
+                     "4": "UTRAN W/HSDPA",
+                     "5": "UTRAN W/HSUPA",
+                     "6": "UTRAN W/HSDPA and HSUPA",
+                     "7": "E-UTRAN",
+                     "100": "CDMA",
+                     }
 
-UE_STATE = {
-    "SEARCH": "User Equipment is searching but could not (yet) find a suitable 2G/3G/4G cell.",
-    "LIMSRV": "User Equipment is camping on a cell but has not registered on the network.",
-    "NOCONN": "User Equipment is camping on a cell and has registered on the network, and it is in idle mode",
-    "CONNECT": "User Equipment is camping on a cell and has registered on the network, and a call is in progress.",
-}
+UE_STATE = {"SEARCH": "User Equipment is searching but could not (yet) find a suitable 2G/3G/4G cell.",
+            "LIMSRV": "User Equipment is camping on a cell but has not registered on the network.",
+            "NOCONN": "User Equipment is camping on a cell and has registered on the network, and it is in idle mode",
+            "CONNECT": "User Equipment is camping on a cell and has registered on the network, and a call is in progress.",
+            }
 
-NEWORK_STATUS = {
-    "0": "Not registered. ME is not currently searching a new operator to register to",
-    "1": "Registered, home network",
-    "2": "Not registered, but ME is currently searching a new operator to register to",
-    "3": "Registration denied",
-    "4": "Unknown",
-    "5": "Registered, roaming",
-}
+NEWORK_STATUS = {"0": "Not registered. ME is not currently searching a new operator to register to",
+                 "1": "Registered, home network",
+                 "2": "Not registered, but ME is currently searching a new operator to register to",
+                 "3": "Registration denied",
+                 "4": "Unknown",
+                 "5": "Registered, roaming",
+                 }
 
-INFO_DATA = ['pin', 'state', 'state_txt', 'connection_type', 'is_tdd', 'mcc', 'mnc', 
-             'cellID', 'pcid', 'earfcn', 'freq_band_ind', 'freq_duplex_mode', 'freq_note', 
-             'service_provider_name', 'full_network_name', 'short_network_name', 
-             'registered_public_land_mobile_network', 'connection_status', 'lac', 'operator_num', 
-             'band', 'network_time', 'operator', 'access_technology', 'qccid', 'imsi', 'firmware', 
-             'model', 'manufacturer', 'imei_sn', 'imei', 'tac', 'alphabet']
+INFO_DATA = ['pin',
+             'state',
+             'state_txt',
+             'connection_type',
+             'is_tdd',
+             'mcc',
+             'mnc',
+             'cellID',
+             'pcid',
+             'earfcn',
+             'freq_band_ind',
+             'freq_duplex_mode',
+             'freq_note',
+             'service_provider_name',
+             'full_network_name',
+             'short_network_name',
+             'registered_public_land_mobile_network',
+             'connection_status',
+             'lac',
+             'operator_num',
+             'band',
+             'network_time',
+             'operator',
+             'access_technology',
+             'qccid',
+             'imsi',
+             'firmware',
+             'model',
+             'manufacturer',
+             'imei_sn',
+             'imei',
+             'tac',
+             'alphabet']
 
-NUM_DATA = ['freq_operating_band', 'freq_uplink_lower', 'freq_uplink_upper', 'freq_downlink_lower', 
-            'freq_downlink_upper', 'ul_bandwidth', 'dl_bandwidth', 'rsrp', 'rsrq', 'rssi', 'sinr', 
-            'channel', "battchg", "signal", "service", "call", "roam","smsfull","gprs_coverage", "callsetup",
-            "bytes_sent", "bytes_recv"]
-    
+NUM_DATA = ['freq_operating_band',
+            'freq_uplink_lower',
+            'freq_uplink_upper',
+            'freq_downlink_lower',
+            'freq_downlink_upper',
+            'ul_bandwidth',
+            'dl_bandwidth',
+            'rsrp',
+            'rsrq',
+            'rssi',
+            'sinr',
+            'channel',
+            "battchg",
+            "signal",
+            "service",
+            "call",
+            "roam",
+            "smsfull",
+            "gprs_coverage",
+            "callsetup",
+            "bytes_sent",
+            "bytes_recv"]
 
 
 def COPS(text, data, string_name):
-    txt = text[0].replace("+COPS: ",'')
+    txt = text[0].replace("+COPS: ", '')
     data_list = txt.split(',')
-    if len(data_list) >2:
-        data['operator'] =  data_list[2].replace('"','')
-        data['access_technology'] =  ACCESS_TECHNOLOGY[data_list[3]]
+    if len(data_list) > 2:
+        data['operator'] = data_list[2].replace('"', '')
+        data['access_technology'] = ACCESS_TECHNOLOGY[data_list[3]]
     else:
         log.debug('+COPS: empty?')
+
     
 def QENG(text, data, string_name):
     """
@@ -118,7 +159,7 @@ def QENG(text, data, string_name):
     bandwith = [1.4, 3, 5, 10, 15, 20]
 
     data_list = text[0].split(',')
-    i=1
+    i = 1
 
     while i < len(strings):
         if strings[i] == 'srxlev':
@@ -133,7 +174,7 @@ def QENG(text, data, string_name):
                 
         elif(strings[i] == 'cellID'):
             d = "0x" + data_list[i]
-            data[strings[i]] = int(d,0)
+            data[strings[i]] = int(d, 0)
         elif(strings[i] == 'state'):
             data[strings[i]] = data_list[i].replace('"', '')
             data["state_txt"] = UE_STATE[data[strings[i]]]
@@ -146,13 +187,15 @@ def QENG(text, data, string_name):
 
     return (data)
 
+
 def VAR(text, data, string_name):
     result = re.search('\+[^:]*:(.*)', text[0])
     if result:
-        data[string_name] = result.groups()[0].replace('"', '').replace(' ','')
+        data[string_name] = result.groups()[0].replace('"', '').replace(' ', '')
     else:
         data[string_name] = text[0]
     log.debug(f'transform {string_name} {text} -> {data[string_name]}')
+
 
 def CREG(text, data, string_name):
     strings = ["pre", "connection_status", "lac", "ci", "Act"]
@@ -160,10 +203,10 @@ def CREG(text, data, string_name):
     
     data_list = text[0].split(',')
     
-    i=0
+    i = 0
 
     while i < len(strings):
-        if strings[i] in ignore :
+        if strings[i] in ignore:
             i = i + 1
             continue
         
@@ -184,6 +227,7 @@ def CREG(text, data, string_name):
         log.debug(f'transform {strings[i]} {data_list[i]} -> {data[strings[i]]}')
         i = i + 1
 
+
 def QNWINFO(text, data, string_name):
     """
         "QNWINFO": [
@@ -195,7 +239,7 @@ def QNWINFO(text, data, string_name):
     data_list = text[0].replace("+QNWINFO: ", '').split(',')
     log.debug(f'{text} -> {data_list}')
     
-    i=1
+    i = 1
 
     while i < len(strings):
         if(strings[i] == 'operator_num'):
@@ -223,7 +267,7 @@ def QSPN(text, data, string_name):
     data_list = text[0].replace("+QSPN: ", '').split(',')
     log.debug(f'{text} -> {data_list}')
     
-    i=0
+    i = 0
 
     while i < len(strings):
         if(strings[i] == 'rplmn'):
@@ -249,13 +293,13 @@ def CIND(text, data, string_name):
     
 
     """
-    strings = ["battchg", "signal", "service", "call", "roam","smsfull","gprs_coverage", "callsetup"]
+    strings = ["battchg", "signal", "service", "call", "roam", "smsfull", "gprs_coverage", "callsetup"]
     
     data_list = text[0].replace("+CIND: ", '').split(',')
     
     log.debug(f'{text} -> {data_list}')
     
-    i=0
+    i = 0
 
     while i < len(strings):
         if '"' in data_list[i] or data_list[i] == '-':
@@ -267,6 +311,7 @@ def CIND(text, data, string_name):
 
         log.debug(f'transform {strings[i]} {data_list[i]} -> {data[strings[i]]}')
         i = i + 1
+
 
 def QGDCNT(text, data, string_name):
     """
@@ -280,7 +325,7 @@ def QGDCNT(text, data, string_name):
     
     log.debug(f'{text} -> {data_list}')
     
-    i=0
+    i = 0
 
     while i < len(strings):
         if '"' in data_list[i] or data_list[i] == '-':
@@ -292,6 +337,8 @@ def QGDCNT(text, data, string_name):
 
         log.debug(f'transform {strings[i]} {data_list[i]} -> {data[strings[i]]}')
         i = i + 1
+
+
 def CGDCONT(text, data, string_name):
     
     """
@@ -315,15 +362,16 @@ def CGDCONT(text, data, string_name):
     for line in text:
         data_dict = {}
         data_list = line.replace("+CGDCONT: ", '').split(',')
-        i=0
+        i = 0
         while i < len(strings):
             if (strings[i] != 'cid'):
-                data_dict[strings[i]] = data_list[i].replace('"','')
+                data_dict[strings[i]] = data_list[i].replace('"', '')
             else:
                 cid = data_list[i]
             i = i + 1
             
         data['pdp'][cid] = data_dict
+
 
 def CGACT(text, data, string_name):
     strings = ["cid", "active"]
@@ -332,16 +380,17 @@ def CGACT(text, data, string_name):
     for line in text:
         data_dict = {}
         data_list = line.replace("+CGACT: ", '').split(',')
-        i=0
+        i = 0
         while i < len(strings):
             if (strings[i] != 'cid'):
-                data_dict[strings[i]] = data_list[i].replace('"','')
+                data_dict[strings[i]] = data_list[i].replace('"', '')
             else:
                 cid = data_list[i]
                 
             i = i + 1
             
         data['pdp_active'][cid] = data_dict
+
         
 COMMANDS = {
     'pin': { 
@@ -353,7 +402,7 @@ COMMANDS = {
         'cmd': 'AT+QENG="SERVINGCELL"',
         'description': 'Report the information of serving cells, neighbor cells and packet switch parameters',
         'run': QENG
-        },    
+        },
     'QSPN': { 
         'cmd': 'AT+QSPN',
         'description': 'Display the Name of Registered Network',
@@ -505,7 +554,6 @@ USAGE''' % (program_shortdesc, str(__date__))
     parser.add_argument('-w', '--daemonize', action="store_true", dest="daemonize", default=False,
                         help="daemonize and listen on PORT to incoming requests. : %(default)s]")
 
-
     # Process arguments
     args = parser.parse_args()
     
@@ -524,14 +572,14 @@ USAGE''' % (program_shortdesc, str(__date__))
 
     lte_info = Info('lte_modem', 'LTE modem and connection info', labelnames=['port'], registry=registry)
     
-    lte_pdp_info = Info('lte_modem_pdp', 'LTE modem pdp info', labelnames=['cid', 'port'],  registry=registry)
+    lte_pdp_info = Info('lte_modem_pdp', 'LTE modem pdp info', labelnames=['cid', 'port'], registry=registry)
     
     stats_list = {}
     for i in NUM_DATA:
-        stats_list[i] = Gauge('lte_modem_' + i,i,labelnames=['port'], registry=registry)
+        stats_list[i] = Gauge('lte_modem_' + i, i, labelnames=['port'], registry=registry)
 
     if args.daemonize:
-        start_http_server(args.exporter_port,registry=registry)
+        start_http_server(args.exporter_port, registry=registry)
 
     while True:
 
@@ -540,14 +588,12 @@ USAGE''' % (program_shortdesc, str(__date__))
         if (args.debug):
             log.debug(json.dumps(data, indent=4)) 
         
-        
         stats = {}
         
         for cmd in COMMANDS.keys():
             if 'run' in COMMANDS[cmd]:
                 log.debug(f'{cmd} has transform function')
                 COMMANDS[cmd]['run'](data[cmd], stats, cmd)
-    
         
         info = {}
         for i in INFO_DATA:
@@ -561,7 +607,7 @@ USAGE''' % (program_shortdesc, str(__date__))
                 stats_list[i].labels(args.device.name).set(stats[i])
         
         for i in stats['pdp'].keys():
-            stats['pdp'][i]['active'] =  stats['pdp_active'][i]['active']
+            stats['pdp'][i]['active'] = stats['pdp_active'][i]['active']
             lte_pdp_info.labels(i, args.device.name).info(stats['pdp'][i])
         
         if (args.debug):
@@ -577,7 +623,7 @@ USAGE''' % (program_shortdesc, str(__date__))
         
 
 def readLine(signal, args):
-    line=""
+    line = ""
     lines = []
     while line != 'OK' and line != 'ERROR':
         r = signal.readline().rstrip()
@@ -588,6 +634,7 @@ def readLine(signal, args):
         lines.append(line)
         
     return(lines)
+
 
 def getData(args):
 
@@ -613,12 +660,12 @@ def getData(args):
                 log.debug(f"send prep command {COMMANDS[command]['precmd']} to {args.device.name}")
                 cmd = COMMANDS[command]['precmd'] + "\r\n"
                 modem.write(cmd.encode())
-                lines = readLine(modem,args)
+                lines = readLine(modem, args)
                 
             log.debug(f"send {COMMANDS[command]['cmd']} to {args.device.name}")    
             cmd = COMMANDS[command]['cmd'] + "\r\n"
             modem.write(cmd.encode())
-            lines = readLine(modem,args)
+            lines = readLine(modem, args)
         
             data[command] = lines
         
