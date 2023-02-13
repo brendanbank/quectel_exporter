@@ -590,6 +590,11 @@ USAGE''' % (program_shortdesc, str(__date__))
                         help="Run the exporter as a specific user drop. " + 
                         "The exporter must be started as root to enable this. [default: %(default)s]")
 
+    parser.add_argument('-g,', '--group', type=str, dest="group",
+                        default="dialout",
+                        help="Run the exporter as a specific group. " + 
+                        "The exporter must be started as root to enable this. [default: %(default)s]")
+
     # Process arguments
     args = parser.parse_args()
     
@@ -600,7 +605,8 @@ USAGE''' % (program_shortdesc, str(__date__))
     
     log.info (f'started with args {args}')
     
-    #drop_privileges(uid_name=args.username)
+    if (args.username and args.group):
+        drop_privileges(uid_name=args.username,gid_name=args.group)
 
     """ init prometheus_client """
     registry = prometheus_client.CollectorRegistry()
@@ -769,8 +775,17 @@ def drop_privileges(uid_name='nobody', gid_name='nogroup'):
     log.warning(f'Dropping privileges to user {uid_name} and group {gid_name}')
     
     # Get the uid/gid from the name
-    running_uid = pwd.getpwnam(uid_name).pw_uid
-    running_gid = grp.getgrnam(gid_name).gr_gid
+    try:
+        running_uid = pwd.getpwnam(uid_name).pw_uid
+    except Exception as e:
+        log.critical(f'cannot find username {uid_name}: {e}')
+        exit()
+
+    try:
+        running_gid = grp.getgrnam(gid_name).gr_gid
+    except Exception as e:
+        log.critical(f'cannot find groupname {gid_name}: {e}')
+        exit()
  
     # Remove group privileges
     os.setgroups([])
