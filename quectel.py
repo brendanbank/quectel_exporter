@@ -577,7 +577,7 @@ USAGE''' % (program_shortdesc, str(__date__))
                         help="set the baudrate of the serial port of the modem [default: %(default)s]")
     
     parser.add_argument('-j', '--json', action="store_true", dest="json", default=False,
-                        help="Read the device info from a json input file: %(default)s]")
+                        help="Read the device as a json input file: %(default)s], ")
     
     parser.add_argument('-f', '--frequency', action="store_true", dest="frequency", default=False,
                         help="fetch frequency data from " + FREQ_URL + " : %(default)s]")
