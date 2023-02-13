@@ -1,4 +1,4 @@
-	
+	./quectel.py -h
 	usage: quectel.py [-h] [-v] [-V] [-d] [-E EXPORTER_PORT] [-i INTERVAL] [-D DEVICE] [-b BAUDRATE] [-j] [-f] [-w] [-u, USERNAME] [-g, GROUP]
 	
 	quectel_exporter -- Exporter for quectel modem 
@@ -27,7 +27,7 @@
 	                        set the path to the serial port of the modem [default: /dev/ttyUSB2]
 	  -b BAUDRATE, --baudrate BAUDRATE
 	                        set the baudrate of the serial port of the modem [default: 115200]
-	  -j, --json            Read the defice file as json input: False]
+	  -j, --json            Read the device info from a json input file: False]
 	  -f, --frequency       fetch frequency data from https://rahix.github.io/frequency-bands/data/fb.csv : False]
 	  -w, --daemonize       daemonize and listen on PORT to incoming requests. : False]
 	  -u, USERNAME, --username USERNAME
