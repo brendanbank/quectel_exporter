@@ -583,6 +583,11 @@ USAGE''' % (program_shortdesc, str(__date__))
     parser.add_argument('-w', '--daemonize', action="store_true", dest="daemonize", default=False,
                         help="daemonize and listen on PORT to incoming requests. : %(default)s]")
 
+    parser.add_argument('-u,', '--username', type=str, dest="username",
+                        default="nobody",
+                        help="Run the exporter as a specific user drop. " + 
+                        "The exporter must be started as root to enable this. [default: %(default)s]")
+
     # Process arguments
     args = parser.parse_args()
     
@@ -593,8 +598,7 @@ USAGE''' % (program_shortdesc, str(__date__))
     
     log.info (f'started with args {args}')
     
-    if args.frequency:
-        FREQDATA = getFreqdata()
+    drop_privileges(uid_name=args.username)
 
     """ init prometheus_client """
     registry = prometheus_client.CollectorRegistry()
@@ -611,6 +615,9 @@ USAGE''' % (program_shortdesc, str(__date__))
         start_http_server(args.exporter_port, registry=registry)
 
     while True:
+
+        if args.frequency and not FREQDATA:
+            FREQDATA = getFreqdata()
 
         data = getData(args)
         
@@ -741,6 +748,28 @@ def getFreqdata():
         i = i + 1
 
     return (bands)
+
+def drop_privileges(uid_name='nobody', gid_name='nogroup'):
+    if os.getuid() != 0:
+        # We're not root so, like, whatever dude
+        return
+
+    log.warning(f'Dropping privileges to user {uid_name} and group {gid_name}')
+    
+    # Get the uid/gid from the name
+    running_uid = pwd.getpwnam(uid_name).pw_uid
+    running_gid = grp.getgrnam(gid_name).gr_gid
+ 
+    # Remove group privileges
+    os.setgroups([])
+ 
+    # Try setting the new uid/gid
+    os.setgid(running_gid)
+    os.setuid(running_uid)
+ 
+    # Ensure a very conservative umask
+    old_umask = os.umask(0o077)
+    
 
 if __name__ == "__main__":
 
