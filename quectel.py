@@ -49,6 +49,8 @@ import argparse
 import serial, json
 import re
 import prometheus_client
+import pwd
+import grp
 
 import logging
 from prometheus_client import Histogram, CollectorRegistry, start_http_server, Gauge, Info, generate_latest
@@ -598,7 +600,7 @@ USAGE''' % (program_shortdesc, str(__date__))
     
     log.info (f'started with args {args}')
     
-    drop_privileges(uid_name=args.username)
+    #drop_privileges(uid_name=args.username)
 
     """ init prometheus_client """
     registry = prometheus_client.CollectorRegistry()
@@ -620,6 +622,12 @@ USAGE''' % (program_shortdesc, str(__date__))
             FREQDATA = getFreqdata()
 
         data = getData(args)
+
+        if not data and args.daemonize:
+            time.sleep(args.interval)
+            continue
+        if not data:
+            return(None)
         
         if (args.debug):
             log.debug(json.dumps(data, indent=4)) 
@@ -681,33 +689,37 @@ def getData(args):
 
     else:
 
-        log.debug(f'open serial port {args.device.name}')
-        modem = serial.Serial(
-            port=args.device.name,
-            baudrate=args.baudrate,
-            timeout=2
-        )
-        log.debug(f'flush serial port {args.device.name}')
-        modem.flushInput()
-    
-        data = {}
-        for command in COMMANDS.keys():
-            if "precmd" in COMMANDS[command]:
-                log.debug(f"send prep command {COMMANDS[command]['precmd']} to {args.device.name}")
-                cmd = COMMANDS[command]['precmd'] + "\r\n"
+        try:
+            log.debug(f'open serial port {args.device.name}')
+            modem = serial.Serial(
+                port=args.device.name,
+                baudrate=args.baudrate,
+                timeout=2
+            )
+            log.debug(f'flush serial port {args.device.name}')
+            modem.flushInput()
+        
+            data = {}
+            for command in COMMANDS.keys():
+                if "precmd" in COMMANDS[command]:
+                    log.debug(f"send prep command {COMMANDS[command]['precmd']} to {args.device.name}")
+                    cmd = COMMANDS[command]['precmd'] + "\r\n"
+                    modem.write(cmd.encode())
+                    lines = readLine(modem, args)
+                    
+                log.debug(f"send {COMMANDS[command]['cmd']} to {args.device.name}")    
+                cmd = COMMANDS[command]['cmd'] + "\r\n"
                 modem.write(cmd.encode())
                 lines = readLine(modem, args)
-                
-            log.debug(f"send {COMMANDS[command]['cmd']} to {args.device.name}")    
-            cmd = COMMANDS[command]['cmd'] + "\r\n"
-            modem.write(cmd.encode())
-            lines = readLine(modem, args)
-        
-            data[command] = lines
-        
-        modem.close()
-        
-        return(data)
+            
+                data[command] = lines
+            
+            modem.close()
+            
+            return(data)
+        except Exception as e:
+            log.critical(f'Could not open modem port on {args.device.name}: {e}')
+            return ({})
 
 def getFreqdata():
     import urllib.request
