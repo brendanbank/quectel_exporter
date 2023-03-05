@@ -212,7 +212,12 @@ def QENG(text, data, string_name):
         elif '"' in data_list[i] or data_list[i] == '-':
             data[strings[i]] = data_list[i].replace('"', '')
         else:
-            data[strings[i]] = int(data_list[i])
+            try:
+                data[strings[i]] = int(data_list[i])
+            except Exception as e:
+                log.critical(f'could not typecast to int ({data_list[i])}) - {e}')
+                data[strings[i]] = 0
+                
         log.debug(f'transform {strings[i]} {data_list[i]} -> {data[strings[i]]}')
         i = i + 1
 
